@@ -5,8 +5,11 @@
 #ifndef __CNAMEDSEMAPHORE_H
 #define __CNAMEDSEMAPHORE_H
 
+#include <iostream>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
 #include <semaphore.h>
-
 
 // class encapsulating a named semaphore with just the functionality we need
 class CNamedSemaphore {
@@ -31,6 +34,8 @@ private:
     sem_t       *semaphore;
     // what do I need to remember in the object being required lateron?
     // Add such information as additional private variables here
+    bool allow_deconstruct = false;
+    
     const char *remember_my_name;
     pid_t       remember_my_creator;
 

@@ -35,7 +35,7 @@ void pingpong(bool parent) {
 // pingpong() and indicating with a boolean on who is who
 int main() {
 
-    cout << "parent=" << getpid() << endl;
+    //cout << "parent=" << getpid() << endl;
 
     // now we fork...
 

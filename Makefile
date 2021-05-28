@@ -10,8 +10,8 @@ TARGET = termin3
 
 all: obj $(TARGET)
 
-$(TARGET): $(OBJ)	
-	$(CC) $(LD_FLAGS) -o $@ $(OBJ) $(LIBS) 	
+$(TARGET): $(OBJ)
+	$(CC) $(LD_FLAGS) -o $@ $(OBJ) $(LIBS)
 obj/%.o: %.cpp
 	$(CC) $(CC_FLAGS) -c -o $@ $<
 
