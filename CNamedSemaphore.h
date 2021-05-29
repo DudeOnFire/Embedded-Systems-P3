@@ -19,7 +19,7 @@ public:
     // create and destroy the semaphore
     // @name - name of the semaphore being created in /run/shm
     // @value - initial value of the semaphore
-    CNamedSemaphore(const char *name, int value);
+    CNamedSemaphore(const char *name, unsigned int value);
     ~CNamedSemaphore();
 
     // increment value of the semaphore (release if value is zero)
@@ -34,8 +34,8 @@ private:
     sem_t       *semaphore;
     // what do I need to remember in the object being required lateron?
     // Add such information as additional private variables here
-    bool allow_deconstruct = false;
-    
+    bool allow_deconstruct = true;
+
     const char *remember_my_name;
     pid_t       remember_my_creator;
 

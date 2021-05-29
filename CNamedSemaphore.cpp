@@ -10,9 +10,24 @@ using namespace std;
 // construct a new named semaphore
 // @name - name of the semaphore being created in /run/shm
 // @value - initial value of the semaphore
-CNamedSemaphore::CNamedSemaphore(const char *name, int value) {
-  this->semaphore = sem_open(name, O_CREAT, O_RDWR, value);
-  this->remember_my_name = name;
+CNamedSemaphore::CNamedSemaphore(const char *name, unsigned int value) {
+/*
+  int i = sem_unlink(name);
+  if(i != 0){
+    exitproc("unlink didn't work", i);
+  }
+*/
+  this->semaphore = sem_open(name, O_CREAT | O_EXCL, (mode_t) S_IRWXU, value);
+
+  if(this->semaphore == SEM_FAILED){
+    std::cerr << "sem failed :"  << this->semaphore << " _ " << errno << std::endl;
+
+    exit(-1);
+  }
+  else {
+    this->remember_my_name = name;
+  }
+
 }
 
 // deconstruct the semaphore
@@ -21,23 +36,49 @@ CNamedSemaphore::CNamedSemaphore(const char *name, int value) {
 CNamedSemaphore::~CNamedSemaphore() {
   if(this->allow_deconstruct){
     int i = sem_close(this->semaphore);
+
+    int j = sem_unlink(this->remember_my_name);
+
+    if(j != 0){
+      exitproc("unlink didn't work", i);
+    }
+
+    if(i != 0){
+      this->exitproc("destructor error", i);
+    }
+    else {
+      std::cout << "semaphore closed" << std::endl;
+    }
   }
+
 }
 
 
 void CNamedSemaphore::increment(void) {
   int i = sem_post(this->semaphore);
+  if(i != 0){
+    this->exitproc("increment error", i);
+  }
 }
 
 
 void CNamedSemaphore::decrement(void) {
   int i = sem_wait(this->semaphore);
+  if(i != 0){
+    this->exitproc("decrement error", i);
+  }
 }
 
 
 int CNamedSemaphore::value(void) {
   int value;
-  return sem_getvalue(this->semaphore, &value);
+  int i = sem_getvalue(this->semaphore, &value);
+  if(i != 0) {
+    this->exitproc("get value failed", i);
+  }
+  else {
+    return value;
+  }
 }
 
 

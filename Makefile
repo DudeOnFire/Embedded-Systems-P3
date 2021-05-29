@@ -1,7 +1,7 @@
 CC = g++
 CC_FLAGS = -Wall $(EXTRA)
 LD_FLAGS = $(EXTRA)
-LIBS = -lpthread -ltinyb
+LIBS = -lpthread 
 
 SRC = $(wildcard *.cpp)
 OBJ = $(addprefix obj/,$(notdir $(SRC:.cpp=.o)))
