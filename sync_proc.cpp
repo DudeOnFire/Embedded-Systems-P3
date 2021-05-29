@@ -44,12 +44,11 @@ SensorTag sensorTag;
 // between both processes
 void pingpong(bool parent) {
 
-  for(int i = 0; i < NUMBER_OF_LOOPS; i++) {
+  int count = NUMBER_OF_LOOPS;
+
+  while(count != 0) {
 
     if(state.value() == 1 && !parent){
-
-      //1--
-      state.decrement();
 
       //enter critical
       semaphore.decrement();
@@ -61,19 +60,13 @@ void pingpong(bool parent) {
 
       //to state 2
       state.increment();
-      state.increment();
+      count--;
 
     }
     else if(state.value() == 1 && parent){
 
-
-
     }
     else if(state.value() == 2 && parent){
-
-      //to 0
-      state.decrement();
-      state.decrement();
 
       //enter critical
       semaphore.decrement();
@@ -84,20 +77,25 @@ void pingpong(bool parent) {
       //leave critical
 
       //to state 1
-      state.increment();
+      state.decrement();
+      count--;
 
     }
     else if(state.value() == 2 && !parent){
 
-
-
     }
-
-
-
-
-
   }
+
+  //to state 3 from 1
+  state.increment();
+  state.increment();
+
+  //terminate
+
+  if(state.value() == 3 && parent){
+    semaphore.allow_deconstruct = true;
+  }
+
 }
 
 // main function, here we are just forking into two processes both calling

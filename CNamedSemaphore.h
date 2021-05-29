@@ -30,11 +30,13 @@ public:
     // return the current value of the semaphore
     int value(void);
 
+    bool allow_deconstruct = false;
+
 private:
     sem_t       *semaphore;
     // what do I need to remember in the object being required lateron?
     // Add such information as additional private variables here
-    bool allow_deconstruct = true;
+
 
     const char *remember_my_name;
     pid_t       remember_my_creator;
