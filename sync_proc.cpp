@@ -86,16 +86,17 @@ void pingpong(bool parent) {
     }
   }
 
-  //to state 3 from 1
-  state.increment();
-  state.increment();
+  //ende der schleife von child und parent auf state1, danach auf 3
+
 
   //terminate
-
-  if(state.value() == 3 && parent){
-    semaphore.allow_deconstruct = true;
+  if(state.value() == 1 && !parent){
+    //to state 3 from 1
+    state.increment();
+    state.increment();
   }
 
+  return;
 }
 
 // main function, here we are just forking into two processes both calling
@@ -119,7 +120,7 @@ if (child_pid < 0) {
   //==========
 
   pingpong(false);
-
+  std::cout << "ping pong child exit" << std::endl;
   //==========
 
   //exit child
@@ -131,6 +132,11 @@ if (child_pid < 0) {
   //==========
 
   pingpong(true);
+  std::cout << "ping pong parent exit" << std::endl;
+
+  if(state.value() == 3) {
+    semaphore.allow_deconstruct = true;
+  }
 
   //==========
 

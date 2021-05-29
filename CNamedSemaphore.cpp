@@ -11,12 +11,12 @@ using namespace std;
 // @name - name of the semaphore being created in /run/shm
 // @value - initial value of the semaphore
 CNamedSemaphore::CNamedSemaphore(const char *name, unsigned int value) {
-/*
+
   int i = sem_unlink(name);
   if(i != 0){
     exitproc("unlink didn't work", i);
   }
-*/
+
   this->semaphore = sem_open(name, O_CREAT | O_EXCL, (mode_t) S_IRWXU, value);
 
   if(this->semaphore == SEM_FAILED){
