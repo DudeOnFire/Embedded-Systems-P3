@@ -30,7 +30,7 @@ enum EProc_State {
     STATE_TERMINATE       //3
 };
 
-#define NUMBER_OF_LOOPS     10
+#define NUMBER_OF_LOOPS     2
 
 const char sem_name1[] = "/semaphore";
 const char sem_name2[] = "/state";
@@ -46,21 +46,38 @@ void pingpong(bool parent) {
 
   int count = NUMBER_OF_LOOPS;
 
-  while(count != 0) {
+  while(true) {
 
-    if(state.value() == 1 && !parent){
+    if(state.value() == 1 && !parent) {
+      //10 durchläufe des childs sind abgelaufen, child ist vor parent fertig ->
+      //make parent active without printing
+      //state = 1
+      if(count == 0) {
+        state.increment();
+        count--;
+      }
+      //parent ist ready, printed last pong, child switches state to s3
+      //and terminates itsef
+      else if(count == -1) {
+        state.increment();
+        state.increment();
+        break;
+      }
+      //normal ping pong
+      else {
+        //enter critical
+        semaphore.decrement();
+        std::cout << "Child: " << std::endl;
+        sensorTag.writeMovementConfig();
+        sensorTag.printMotion();
+        semaphore.increment();
+        //leave critical
 
-      //enter critical
-      semaphore.decrement();
-      std::cout << "Child: " << std::endl;
-      sensorTag.writeMovementConfig();
-      sensorTag.printMotion();
-      semaphore.increment();
-      //leave critical
+        //to state 2
+        state.increment();
+        count--;
+      }
 
-      //to state 2
-      state.increment();
-      count--;
 
     }
     else if(state.value() == 1 && parent){
@@ -84,17 +101,31 @@ void pingpong(bool parent) {
     else if(state.value() == 2 && !parent){
 
     }
+    //child finished, child switches to s3
+    //parent can now destroy resources
+    else if(state.value() == 3 && parent) {
+      semaphore.allow_deconstruct = true;
+      break;
+    }
+
+  }
+  //after while loop
+
+
+
+  //
+  if(parent){
+    std::cout << "parent is finished: " << state.value() << " :_ " <<  std::endl;
   }
 
-  //ende der schleife von child und parent auf state1, danach auf 3
 
-
-  //terminate
-  if(state.value() == 1 && !parent){
+  if(!parent){
     //to state 3 from 1
-    state.increment();
-    state.increment();
+    std::cout << "child is finished: " << state.value() << " :_ " <<  std::endl;
+    //state.increment();
+    //state.increment();
   }
+
 
   return;
 }
