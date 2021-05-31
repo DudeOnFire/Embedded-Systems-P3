@@ -30,7 +30,7 @@ enum EProc_State {
     STATE_TERMINATE       //3
 };
 
-#define NUMBER_OF_LOOPS     2
+#define NUMBER_OF_LOOPS     10
 
 const char sem_name1[] = "/semaphore";
 const char sem_name2[] = "/state";
@@ -52,13 +52,14 @@ void pingpong(bool parent) {
       //10 durchläufe des childs sind abgelaufen, child ist vor parent fertig ->
       //make parent active without printing
       //state = 1
-      if(count == 0) {
-        state.increment();
-        count--;
-      }
+
+      //if(count == 0) {
+        //state.increment();
+        //count--;
+      //}
       //parent ist ready, printed last pong, child switches state to s3
       //and terminates itsef
-      else if(count == -1) {
+      if(count == -1) {
         state.increment();
         state.increment();
         break;
@@ -67,7 +68,7 @@ void pingpong(bool parent) {
       else {
         //enter critical
         semaphore.decrement();
-        std::cout << "Child: " << std::endl;
+        std::cout << "Child: " << count << std::endl;
         sensorTag.writeMovementConfig();
         sensorTag.printMotion();
         semaphore.increment();
@@ -87,7 +88,7 @@ void pingpong(bool parent) {
 
       //enter critical
       semaphore.decrement();
-      std::cout << "Parent: " << std::endl;
+      std::cout << "Parent: " << count << std::endl;
       sensorTag.writeMovementConfig();
       sensorTag.printMotion();
       semaphore.increment();
@@ -116,14 +117,14 @@ void pingpong(bool parent) {
   //
   if(parent){
     std::cout << "parent is finished: " << state.value() << " :_ " <<  std::endl;
+    state.allow_deconstruct = true;
   }
+
 
 
   if(!parent){
     //to state 3 from 1
     std::cout << "child is finished: " << state.value() << " :_ " <<  std::endl;
-    //state.increment();
-    //state.increment();
   }
 
 
@@ -164,10 +165,6 @@ if (child_pid < 0) {
 
   pingpong(true);
   std::cout << "ping pong parent exit" << std::endl;
-
-  if(state.value() == 3) {
-    semaphore.allow_deconstruct = true;
-  }
 
   //==========
 

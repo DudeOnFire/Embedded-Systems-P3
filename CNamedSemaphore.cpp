@@ -12,15 +12,16 @@ using namespace std;
 // @value - initial value of the semaphore
 CNamedSemaphore::CNamedSemaphore(const char *name, unsigned int value) {
 
-  //int i = sem_unlink(name);
-  //if(i != 0){
-  //  exitproc("unlink didn't work", i);
-  //}
+  int i = sem_unlink(name);
+  if(i != 0){
+    std::cerr << "sem unlink failed : " << name << std::endl;
+    //exitproc("unlink didn't work", i);
+  }
 
   this->semaphore = sem_open(name, O_CREAT | O_EXCL, (mode_t) S_IRWXU, value);
 
   if(this->semaphore == SEM_FAILED){
-    std::cerr << "sem failed :"  << this->semaphore << " _ " << errno << std::endl;
+    std::cerr << "sem failed :" << name << this->semaphore << " _ " << errno << std::endl;
 
     exit(-1);
   }
@@ -47,7 +48,7 @@ CNamedSemaphore::~CNamedSemaphore() {
       this->exitproc("destructor error", i);
     }
     else {
-      std::cout << "semaphore closed" << std::endl;
+      std::cout << this->remember_my_name << " closed" << std::endl;
     }
   }
 
